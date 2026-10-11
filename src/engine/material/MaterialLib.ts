@@ -123,6 +123,7 @@ export const materials = {
   goombaBody: new MeshStandardMaterial({ color: 0x9c5a1e, roughness: 0.8 }),
   goombaFoot: new MeshStandardMaterial({ color: 0x3a2410, roughness: 0.75 }),
   goombaEye: new MeshStandardMaterial({ color: 0xf5efe0, roughness: 0.4 }),
+  goombaFace: new MeshStandardMaterial({ color: 0xf2e6cf, roughness: 0.85 }),
   // 奖励/终点
   coin: new MeshStandardMaterial({
     color: 0xffd24a,
