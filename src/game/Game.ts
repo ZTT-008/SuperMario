@@ -663,10 +663,15 @@ export class Game {
     m.onGround = true
     m.dyingT = 0
     m.invT = P.invincibleTime
+    // 复活重新计时(原版每条命都是新表):time=0 若不复位,stepClock 的
+    // while(hud.time > 0)永不成立 → 时钟冻结,复活后进入"不限时"模式
+    this.hud.time = START_TIME
+    this.timeAcc = 0
     // 全部敌人 + 浮台复位,重生点不被蹲守(浮台相位归 0 保确定性)
     for (const e of this.entities) {
       if (RESETTABLE.has(e.kind)) this.resetEnemy(e)
     }
+    this.emitHud()
   }
 
   /** 旗杆:越过即过关,时间奖励入账 */

@@ -149,6 +149,23 @@ describe('Game 地面闭环', () => {
     expect(g.phases).toContain('clear')
     expect(g.hud.score).toBeGreaterThanOrEqual(2000)
   })
+
+  it('时间耗尽死亡复活:时钟复位 START_TIME(防 0 冻结成不限时)', () => {
+    const g = newGame()
+    const m = g.ent('mario')
+    // 悬空钉在旗杆前空地(高于一切敌人轨迹),排除敌人/地形干扰纯等时钟耗尽
+    g.run(START_TIME * 24 + 120, () => {
+      m.pos = { x: 190, y: 12 }
+      m.vel = { x: 0, y: 0 }
+      return g.hud.time === 0
+    })
+    expect(g.hud.time).toBe(0)
+    expect(m.dyingT ?? 0).toBeGreaterThan(0)
+    expect(g.hud.lives).toBe(START_LIVES - 1)
+    g.run(90, () => (m.dyingT ?? 0) <= 0) // 死亡动画 1s = 60 帧后重生
+    expect(m.dyingT ?? 0).toBe(0)
+    expect(g.hud.time).toBe(START_TIME) // 复活重新计时,而非冻结在 0
+  })
 })
 
 describe('Game 空中敌对', () => {
