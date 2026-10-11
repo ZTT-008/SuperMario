@@ -1,5 +1,5 @@
 import './canvasStub' // 必须最先:MaterialLib 模块级贴图需 Canvas 2d
-import { Box3, Mesh } from 'three'
+import { Box3, Mesh, type BufferAttribute } from 'three'
 import { describe, expect, it } from 'vitest'
 import { createGoombaModel } from '../mesh/GoombaModel'
 
@@ -34,6 +34,22 @@ describe('板栗仔模型契约', () => {
       expect(o, `缺特征件 ${n}`).toBeTruthy()
       expect((o as Mesh).position.z).toBeGreaterThan(0)
     }
+  })
+
+  it('伞盖车削曲面法线外翻(LatheGeometry 绕序反了会渲染成内翻黑洞)', () => {
+    const { root } = createGoombaModel()
+    const cap = root.getObjectByName('cap') as Mesh
+    const pos = cap.geometry.attributes.position as BufferAttribute
+    const nrm = cap.geometry.attributes.normal as BufferAttribute
+    let maxZ = -Infinity
+    let idx = 0
+    for (let i = 0; i < pos.count; i++) {
+      if (pos.getZ(i) > maxZ) {
+        maxZ = pos.getZ(i)
+        idx = i
+      }
+    }
+    expect(nrm.getZ(idx)).toBeGreaterThan(0.5) // 最前点法线应指向 +z(外侧)
   })
 
   it('geometries 非空、全件 castShadow、mesh ≤14(draw 预算防线)', () => {
