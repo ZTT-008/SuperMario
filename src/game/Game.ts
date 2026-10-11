@@ -677,12 +677,13 @@ export class Game {
   /** 旗杆:越过即过关,时间奖励入账 */
   private checkWin(m: GrayBoxEntity): void {
     if (m.pos.x < FLAG_X) return
-    this.hud.score += 2000 + this.hud.time * 10
+    // ×25:time 单位改为真实秒(原 400 格×10 → 160 秒×25),奖励上限维持 6000
+    this.hud.score += 2000 + this.hud.time * 25
     this.emitHud()
     this.setPhase('clear')
   }
 
-  /** 游戏内倒计时:按固定步计数,约 0.4s/格,与真实秒解耦 */
+  /** 游戏内倒计时:按固定步计数,1s/格 = HUD 数字即剩余真实秒 */
   private stepClock(dt: number): void {
     this.timeAcc += dt
     let changed = false

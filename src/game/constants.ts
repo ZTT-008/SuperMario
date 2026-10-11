@@ -16,10 +16,10 @@ export const MAX_STEPS_PER_FRAME = 5
 /** 真实帧时间钳制,防卡顿雪崩 */
 export const MAX_FRAME_DT = 0.1
 
-/** 原版倒计时节奏:约 0.4s 减 1 */
-export const TIME_TICK_SECONDS = 0.4
-/** 与原版 1-1 同长:400 格 × 0.4s/格 ≈ 160s 实况(250 时仅 100s,敌潮+水域下体感过紧) */
-export const START_TIME = 400
+/** 倒计时节奏:每 1 真实秒减 1(HUD 数字 = 剩余秒数,所见即所得) */
+export const TIME_TICK_SECONDS = 1.0
+/** 总时长 160 秒:160 格 × 1s/格 = 160s 实况(敌潮+水域下与原版 2分40秒 等长) */
+export const START_TIME = 160
 export const START_LIVES = 3
 
 // ── 关卡 1-1:地形见 level/Level1_1.ts(ASCII 网格),此处只留全局危险区 ──

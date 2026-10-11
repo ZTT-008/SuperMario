@@ -6,6 +6,7 @@ import {
   GROUND_TOP_Y,
   START_LIVES,
   START_TIME,
+  TIME_TICK_SECONDS,
   WATER_ZONE,
 } from '../constants'
 import { tileAt } from '../level/LevelParser'
@@ -154,7 +155,8 @@ describe('Game 地面闭环', () => {
     const g = newGame()
     const m = g.ent('mario')
     // 悬空钉在旗杆前空地(高于一切敌人轨迹),排除敌人/地形干扰纯等时钟耗尽
-    g.run(START_TIME * 24 + 120, () => {
+    // 每 tick 帧数 = TIME_TICK_SECONDS/FIXED_DT,与常量解耦(改流速不用改用例)
+    g.run(START_TIME * (TIME_TICK_SECONDS / FIXED_DT) + 120, () => {
       m.pos = { x: 190, y: 12 }
       m.vel = { x: 0, y: 0 }
       return g.hud.time === 0
