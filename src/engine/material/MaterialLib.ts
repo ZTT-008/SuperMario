@@ -177,7 +177,13 @@ export const materials = {
   snowDots: new PointsMaterial({ color: 0xf5f9ff, transparent: true, opacity: 0.9, depthWrite: false, size: 5, sizeAttenuation: false }),
   pineDark: new MeshBasicMaterial({ color: 0x2e5d3a }),
   snowMound: new MeshBasicMaterial({ color: 0xf3f7fb }),
-  sailDark: new MeshBasicMaterial({ color: 0x44586e }),
+  // 远景帆船双色:深棕船体坐蓝色海面上读得出是船,奶白帆对天/海都透亮
+  // (单色蓝灰版船体被看成「帆拖着一小片海水走」)。
+  // depthWrite:false 与海面同语义:船(z−19.5)比远山(z−22)近,若写深度则远山
+  // 深度测试永远败北 → 船浮在绿草地上层;不写深度 + renderOrder −7 先画,
+  // 山体(0)按绘制顺序盖住船,船只从谷缝与海面上露出
+  boatHull: new MeshBasicMaterial({ color: 0x241a12, depthWrite: false }),
+  boatSail: new MeshBasicMaterial({ color: 0xf2e9d4, depthWrite: false }),
 }
 
 export function disposeMaterials(): void {

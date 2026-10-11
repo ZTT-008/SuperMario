@@ -58,21 +58,27 @@ function bushGeometry(): BufferGeometry {
   return merged
 }
 
-/** 帆船:船体 + 桅杆 + 三角帆 merge 单几何单色 Basic(远景剪影,抄 bush 惯例) */
-function boatGeometry(): BufferGeometry {
-  const hull = new BoxGeometry(1.6, 0.35, 0.6).translate(0, 0.18, 0)
+/**
+ * 帆船双几何:深色件 = 梯形船体(龙骨窄/甲板宽)+ 桅杆 merge;奶白件 = 三角帆。
+ * 单色版船体与帆同蓝灰、又卧在海面带里,漂移时读成「帆拖着一小片海水走」→
+ * 双色 + 梯形轮廓才读得出是船;桅杆归深色,否则奶白桅对亮天际线整段消失。
+ */
+function boatGeometries(): { hull: BufferGeometry; sail: BufferGeometry } {
+  const hullShape = new Shape()
+  hullShape.moveTo(-0.55, 0)
+  hullShape.lineTo(0.55, 0)
+  hullShape.lineTo(0.8, 0.35)
+  hullShape.lineTo(-0.8, 0.35)
+  hullShape.closePath()
   const mast = new BoxGeometry(0.06, 1.5, 0.06).translate(0.1, 1.0, 0)
-  const sail = new Shape()
-  sail.moveTo(0.13, 0.35)
-  sail.lineTo(0.13, 1.45)
-  sail.lineTo(1.0, 0.45)
-  sail.closePath()
-  const sailGeo = new ShapeGeometry(sail)
-  const merged = mergeGeometries([hull, mast, sailGeo])!
-  hull.dispose()
+  const hullGeo = mergeGeometries([new ShapeGeometry(hullShape), mast])!
   mast.dispose()
-  sailGeo.dispose()
-  return merged
+  const sail = new Shape()
+  sail.moveTo(0.16, 0.4)
+  sail.lineTo(0.16, 1.4)
+  sail.lineTo(1.0, 0.5)
+  sail.closePath()
+  return { hull: hullGeo, sail: new ShapeGeometry(sail) }
 }
 
 const CLOUD_WINDOW = 44 // 云在局部窗口内循环漂移,永不枯竭
@@ -110,7 +116,7 @@ export class World {
   private readonly birdUniforms: { uMap: { value: Texture }; uTime: { value: number } }
   private readonly seaMaterial: ShaderMaterial
   private readonly birdMaterial: ShaderMaterial
-  private readonly boat: Mesh
+  private readonly boat: Group
   private readonly birds: InstancedMesh
   private readonly dummy = new Object3D()
 
@@ -245,12 +251,21 @@ export class World {
     seaMesh.frustumCulled = false
     seaLayer.add(seaMesh)
 
-    // 帆船:与海同组(视差 0.18),窗口取模慢漂 + 微起伏
-    const boatGeo = boatGeometry()
-    this.geometries.push(boatGeo)
-    this.boat = new Mesh(boatGeo, materials.sailDark)
-    this.boat.position.set(8, 2.7, -20.5) // 贴地平线 = 远帆;船身略在海面组前
-    this.boat.renderOrder = -8
+    // 帆船:与海同组(视差 0.18),窗口取模慢漂 + 微起伏。
+    // z=−19.5 在海面(−20)之前、近山(−18)之后;renderOrder −7 介于海面(−8)
+    // 与山体(0)之间 → 船稳压海面。遮挡靠材质 depthWrite:false(见 MaterialLib):
+    // 船比远山(−22)近,写深度则山体深度测试永远败北、浮在绿草地上层;
+    // 不写深度后山体按绘制顺序(后画)盖船,船只从谷缝与海面上露出
+    const boatGeo = boatGeometries()
+    this.geometries.push(boatGeo.hull, boatGeo.sail)
+    this.boat = new Group()
+    this.boat.name = 'boat'
+    const hullMesh = new Mesh(boatGeo.hull, materials.boatHull)
+    const sailMesh = new Mesh(boatGeo.sail, materials.boatSail)
+    hullMesh.renderOrder = -7
+    sailMesh.renderOrder = -7
+    this.boat.add(hullMesh, sailMesh)
+    this.boat.position.set(8, 2.7, -19.5) // 船底坐海面带上,地平线(3.2)横穿船身上部
     seaLayer.add(this.boat)
 
     // ── M3 飞鸟:InstancedMesh + 私有 shader,巡航矩阵 CPU 写、翅扇走 GPU ──
