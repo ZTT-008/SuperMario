@@ -18,8 +18,8 @@ export const MAX_FRAME_DT = 0.1
 
 /** 原版倒计时节奏:约 0.4s 减 1 */
 export const TIME_TICK_SECONDS = 0.4
-/** 敌潮难度:400 → 250(0.4s/格 ≈ 100s 实况;纯跑通关 ~33s,含死亡重跑富余) */
-export const START_TIME = 250
+/** 与原版 1-1 同长:400 格 × 0.4s/格 ≈ 160s 实况(250 时仅 100s,敌潮+水域下体感过紧) */
+export const START_TIME = 400
 export const START_LIVES = 3
 
 // ── 关卡 1-1:地形见 level/Level1_1.ts(ASCII 网格),此处只留全局危险区 ──

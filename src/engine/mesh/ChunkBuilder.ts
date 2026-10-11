@@ -117,7 +117,8 @@ export class ChunkBuilder {
       materials.pipeRim,
       pipeRim,
       (d, x, y) => {
-        d.position.set(x + 0.5, y + 1 + 0.175, 0)
+        // 圈顶必须与碰撞顶(y+1)齐平:高于碰撞顶会让站立的马里奥整条腿"插进"管口
+        d.position.set(x + 0.5, y + 1 - 0.175, 0)
         d.rotation.set(0, 0, 0)
       },
       true,
